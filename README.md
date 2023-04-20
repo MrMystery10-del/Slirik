@@ -14,6 +14,7 @@ To get started with Slirik, you will need to install the compiler and interprete
 
 Once you have installed Slirik, you can start writing code using your favorite text editor. Slirik files have the extension .sk
 
+## Examples
 Here is an example "Hello World" program written in Slirik:
 ```java
 function main() {
@@ -26,8 +27,8 @@ Output of the code
 Hello World
 ```
 
-Contributing
+## Contributing
 We welcome contributions to Slirik from the community. If you would like to contribute, please read our contributing guidelines to get started.
 
-License
-Slirik is released under the MIT License.
+## License
+Slirik is released under the Apache 2.0 License.
