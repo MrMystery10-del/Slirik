@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Compiler/Compiler.iml" filepath="$PROJECT_DIR$/Compiler/Compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Example/Example.iml" filepath="$PROJECT_DIR$/Example/Example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Slirik.iml" filepath="$PROJECT_DIR$/.idea/Slirik.iml" />
+      <module fileurl="file://$PROJECT_DIR$/VirtualMachine/VirtualMachine.iml" filepath="$PROJECT_DIR$/VirtualMachine/VirtualMachine.iml" />
+    </modules>
+  </component>
+</project>

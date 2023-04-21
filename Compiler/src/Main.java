@@ -1,10 +1,9 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import statements.Statement;
 
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -16,10 +15,22 @@ public class Main {
         String s;
         while ((s = reader.readLine()) != null)
             tokens.addAll(Lexer.tokenize(s));
+        reader.close();
 
         Parser parser = new Parser(tokens);
-        System.out.println(parser.getStatements());
 
-        reader.close();
+        try {
+            String name = file.getName();
+            File byteCode = new File(name.substring(0, name.length() - 3) + ".sks");
+            FileWriter writer = new FileWriter(byteCode);
+            Queue<Statement> statements = parser.getStatements();
+            while (!statements.isEmpty()) {
+                writer.write(statements.poll().toString() + "\n");
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 }

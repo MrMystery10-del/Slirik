@@ -1,1 +1,5 @@
-int number = 20 + 10 * (20 - 30);
+int x = 10;
+int y = 20;
+int z = x + y;
+bool condition = true;
+float num = 1.2;

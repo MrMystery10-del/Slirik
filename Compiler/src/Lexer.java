@@ -1,11 +1,11 @@
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Lexer {
 
-
-    enum TokenType {
-        TYPE, IDENTIFIER, EQUALS, NUMBER, BINARY_OPERATOR, OPEN_PAREN, CLOSE_PAREN, END
+    protected enum TokenType {
+        TYPE, IDENTIFIER, EQUALS, NUMBER, BINARY_OPERATOR, OPEN_PAREN, CLOSE_PAREN, END,
+        KEYWORD, FUNCTION
     }
 
     protected static List<Token> tokenize(String s) {
@@ -17,9 +17,9 @@ public class Lexer {
                 i++;
                 continue;
             }
-            if (Character.isDigit(c)) {
+            if (Character.isDigit(c) || c == '.') {
                 StringBuilder numberBuilder = new StringBuilder();
-                while (i < s.length() && Character.isDigit(s.charAt(i))) {
+                while (i < s.length() && Character.isDigit(s.charAt(i)) || s.charAt(i) == '.') {
                     numberBuilder.append(s.charAt(i));
                     i++;
                 }
@@ -35,6 +35,8 @@ public class Lexer {
                 String identifier = identifierBuilder.toString();
                 if (identifier.equals("int") || identifier.equals("float") || identifier.equals("bool")) {
                     tokenList.add(new Token(identifier, TokenType.TYPE));
+                } else if (identifier.equals("if") || identifier.equals("else") || identifier.equals("while") || identifier.equals("for")) {
+                    tokenList.add(new Token(identifier, TokenType.KEYWORD));
                 } else {
                     tokenList.add(new Token(identifier, TokenType.IDENTIFIER));
                 }
