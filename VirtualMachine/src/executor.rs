@@ -1,3 +1,6 @@
+use std::fs::read;
+use std::ops::{Add, Div, Mul, Sub};
+use std::process::Output;
 use std::string::ToString;
 
 use crate::Statement;
@@ -34,6 +37,15 @@ pub unsafe fn execute(statement: Statement) {
                 storage.value = statement.value.clone();
             }
         }
+        "add" => {
+            for storage in VARIABLE_VALUE.iter_mut().filter(|(var_name, _)| var_name == &LOADED_VARIABLE).map(|(_, storage)| storage) {
+                if storage.value_type == "int" {
+                    let current_value = storage.value.clone().parse::<i32>().unwrap();
+                    let result = calculate(current_value, statement.value.parse::<i32>().unwrap());
+                    storage.value = result.to_string();
+                }
+            }
+        }
         "op" => OPERATION = statement.value.clone(),
         _ => print_error(String::from("WARNING"), String::from("Undefined statement"), statement.identifier.clone())
     }
@@ -42,6 +54,21 @@ pub unsafe fn execute(statement: Statement) {
 pub unsafe fn print_variables() {
     for val in &VARIABLE_VALUE {
         println!("{} {} {}", val.1.value_type, val.0, val.1.value);
+    }
+}
+
+unsafe fn calculate<T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T>>(x: T, y: T) -> T {
+    match OPERATION.as_str() {
+        "+" => { return x + y; }
+        "-" => { return x - y; }
+        "*" => { return x * y; }
+        "/" => { return x / y; }
+        "^" => { return x; }
+        "#" => { return x; }
+        _ => {
+            print_error(String::from("ERROR"), String::from("Unexpected operator"), OPERATION.clone());
+            panic!();
+        }
     }
 }
 
