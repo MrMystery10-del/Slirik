@@ -59,7 +59,7 @@ public class Parser {
      */
     private void whenType() {
         String type = tokens.get(index).value();
-        if (!currentDataType.equals(type)){
+        if (!currentDataType.equals(type)) {
             statements.add(new Type(type));
             currentDataType = type;
         }
