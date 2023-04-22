@@ -86,6 +86,9 @@ public class Parser {
             statements.add(new Setter("0"));
         else statements.add(new Setter("false"));
 
+        if (!currentOperator.equals("+") && !currentDataType.equals("bool"))
+            statements.add(new Operation("+"));
+
         index++;
 
         generateMathExpression();
@@ -122,12 +125,16 @@ public class Parser {
             Lexer.TokenType tokenType = token.tokenType();
 
             switch (tokenType) {
-                case NUMBER -> statements.add(new Adder(tokens.get(index).value()));
+                case NUMBER -> {
+                    statements.add(new Adder(tokens.get(index).value()));
+                }
                 case IDENTIFIER -> statements.add(new Getter(tokens.get(index).value()));
                 case BINARY_OPERATOR -> {
                     String type = tokens.get(index).value();
-                    if (!currentOperator.equals(type))
+                    if (!currentOperator.equals(type)) {
                         statements.add(new Operation(type));
+                        currentOperator = type;
+                    }
                 }
             }
 

@@ -4,15 +4,16 @@ op +
 var x
 load x
 set 0
-add 10
+add 3
 var y
 load y
 set 0
-add 20
+add 3
 var z
 load z
 set 0
 get x
+op ^
 get y
 type bool
 var condition
@@ -23,4 +24,5 @@ type float
 var num
 load num
 set 0
+op +
 add 1.2

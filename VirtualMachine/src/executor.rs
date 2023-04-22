@@ -1,6 +1,4 @@
-use std::fs::read;
-use std::ops::{Add, Div, Mul, Sub};
-use std::process::Output;
+use std::ops::{Add, Div, Mul, Rem, Sub};
 use std::string::ToString;
 
 use crate::Statement;
@@ -31,19 +29,35 @@ pub unsafe fn execute(statement: Statement) {
             }))
         }
         "type" => VARIABLE_TYPE = statement.value.clone(),
-        "load" => LOADED_VARIABLE = statement.value.clone(),
+        "load" => {
+            if VARIABLES.contains(&(CLASS, DIRECTORY.clone(), statement.value.clone())) {
+                LOADED_VARIABLE = statement.value.clone();
+            } else {
+                print_error(String::from("ERROR"), String::from("Undefined variable name"), statement.value.clone());
+            }
+        }
         "set" => {
             for storage in VARIABLE_VALUE.iter_mut().filter(|(var_name, _)| var_name == &LOADED_VARIABLE).map(|(_, storage)| storage) {
                 storage.value = statement.value.clone();
             }
         }
         "add" => {
-            for storage in VARIABLE_VALUE.iter_mut().filter(|(var_name, _)| var_name == &LOADED_VARIABLE).map(|(_, storage)| storage) {
-                if storage.value_type == "int" {
-                    let current_value = storage.value.clone().parse::<i32>().unwrap();
-                    let result = calculate(current_value, statement.value.parse::<i32>().unwrap());
-                    storage.value = result.to_string();
+            match VARIABLE_TYPE.as_str() {
+                "int" | "float" => add_value(statement.value.clone()),
+                _ => print_error(String::from("WARNING"), String::from("The statement 'add' is not allowed for"), VARIABLE_TYPE.clone())
+            }
+        }
+        "get" => {
+            if VARIABLES.contains(&(CLASS, DIRECTORY.clone(), statement.value.clone())) {
+                for storage in VARIABLE_VALUE.iter_mut().filter(|(var_name, _)| var_name == &statement.value).map(|(_, storage)| storage) {
+                    add_value(storage.value.clone());
                 }
+            } else if (statement.value == "true") || (statement.value == "false") {
+                for storage in VARIABLE_VALUE.iter_mut().filter(|(var_name, _)| var_name == &LOADED_VARIABLE).map(|(_, storage)| storage) {
+                    storage.value = statement.value.clone();
+                }
+            } else {
+                print_error(String::from("ERROR"), String::from("Undefined variable name"), statement.value.clone());
             }
         }
         "op" => OPERATION = statement.value.clone(),
@@ -57,19 +71,61 @@ pub unsafe fn print_variables() {
     }
 }
 
-unsafe fn calculate<T: Add<Output=T> + Sub<Output=T> + Mul<Output=T> + Div<Output=T>>(x: T, y: T) -> T {
+unsafe fn add_value(value: String) {
+    for storage in VARIABLE_VALUE.iter_mut().filter(|(var_name, _)| var_name == &LOADED_VARIABLE).map(|(_, storage)| storage) {
+        if storage.value_type == "int" {
+            let current_value = storage.value.clone().parse::<f32>().unwrap();
+            let result = calculate(current_value, value.clone().parse::<f32>().unwrap());
+            storage.value = result.to_string();
+        } else if storage.value_type == "float" {
+            let current_value = storage.value.clone().parse::<f32>().unwrap();
+            let result = calculate(current_value, value.clone().parse::<f32>().unwrap());
+            println!("{} {} {}", current_value, value.clone().parse::<f32>().unwrap(), result);
+            storage.value = result.to_string();
+        }
+    }
+}
+
+unsafe fn calculate(x: f32, y: f32) -> f32 {
     match OPERATION.as_str() {
-        "+" => { return x + y; }
-        "-" => { return x - y; }
-        "*" => { return x * y; }
-        "/" => { return x / y; }
-        "^" => { return x; }
-        "#" => { return x; }
+        "+" => add(x, y),
+        "-" => sub(x, y),
+        "*" => mul(x, y),
+        "/" => div(x, y),
+        "^" => pow(x, y),
+        "#" => x,
         _ => {
             print_error(String::from("ERROR"), String::from("Unexpected operator"), OPERATION.clone());
             panic!();
         }
     }
+}
+
+fn add(x: f32, y: f32) -> f32 {
+    return x + y;
+}
+
+fn sub(x: f32, y: f32) -> f32 {
+    return x - y;
+}
+
+fn mul(x: f32, y: f32) -> f32 {
+    return x * y;
+}
+
+fn div(x: f32, y: f32) -> f32 {
+    return x / y;
+}
+
+fn pow(x: f32, y: f32) -> f32 {
+    let mut result = 1 as f32;
+    let mut index = 1;
+
+    while index < y as i32 {
+        result *= x;
+        index += 1;
+    }
+    return result;
 }
 
 fn print_error(level: String, message: String, fail: String) {
