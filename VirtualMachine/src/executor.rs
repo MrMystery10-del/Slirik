@@ -22,11 +22,13 @@ pub unsafe fn execute(statement: Statement) {
         "dir" => DIRECTORY = statement.value.clone(),
         "var" => {
             let value = statement.value.clone();
-            VARIABLES.push((CLASS, DIRECTORY.clone(), value.clone()));
-            VARIABLE_VALUE.push((value, Storage {
-                value_type: VARIABLE_TYPE.parse().unwrap(),
-                value: "".to_string(),
-            }))
+            if !VARIABLES.contains(&(CLASS, DIRECTORY.clone(), value.clone())) {
+                VARIABLES.push((CLASS, DIRECTORY.clone(), value.clone()));
+                VARIABLE_VALUE.push((value, Storage {
+                    value_type: VARIABLE_TYPE.parse().unwrap(),
+                    value: "".to_string(),
+                }))
+            }
         }
         "type" => VARIABLE_TYPE = statement.value.clone(),
         "load" => {
@@ -65,12 +67,6 @@ pub unsafe fn execute(statement: Statement) {
     }
 }
 
-pub unsafe fn print_variables() {
-    for val in &VARIABLE_VALUE {
-        println!("{} {} {}", val.1.value_type, val.0, val.1.value);
-    }
-}
-
 unsafe fn add_value(value: String) {
     for storage in VARIABLE_VALUE.iter_mut().filter(|(var_name, _)| var_name == &LOADED_VARIABLE).map(|(_, storage)| storage) {
         if storage.value_type == "int" {
@@ -80,7 +76,6 @@ unsafe fn add_value(value: String) {
         } else if storage.value_type == "float" {
             let current_value = storage.value.clone().parse::<f32>().unwrap();
             let result = calculate(current_value, value.clone().parse::<f32>().unwrap());
-            println!("{} {} {}", current_value, value.clone().parse::<f32>().unwrap(), result);
             storage.value = result.to_string();
         }
     }

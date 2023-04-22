@@ -2,14 +2,17 @@ use std::collections::vec_deque::VecDeque;
 use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::time::Instant;
 
-use crate::executor::{execute, print_variables};
+use crate::executor::execute;
 use crate::statement::Statement;
 
 mod executor;
 mod statement;
 
 fn main() {
+    let start = Instant::now();
+
     // Collect the command line arguments for getting the path of the source code
     let _args: Vec<String> = env::args().collect();
 
@@ -24,9 +27,9 @@ fn main() {
         unsafe { execute(val); }
     }
 
-    unsafe {
-        print_variables();
-    }
+    let elapsed = start.elapsed();
+
+    println!("Run time: {}", elapsed.as_millis());
 }
 
 // Get a buffered reader for a file given its path
