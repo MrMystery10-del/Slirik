@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::time::Instant;
 
-use crate::executor::execute;
+use crate::executor::{execute, print_variables};
 use crate::statement::Statement;
 
 mod executor;
@@ -29,6 +29,7 @@ fn main() {
 
     let elapsed = start.elapsed();
 
+    unsafe { print_variables(); }
     println!("Run time: {}", elapsed.as_millis());
 }
 
@@ -39,33 +40,22 @@ fn get_reader(path: &str) -> BufReader<File> {
     return BufReader::new(file);
 }
 
-// Parse a file of statements into a queue
-fn get_queue_of_statements(reader: BufReader<File>) -> VecDeque::<Statement> {
+fn get_queue_of_statements(reader: BufReader<File>) -> VecDeque<Statement> {
     let mut queue = VecDeque::<Statement>::new();
+    let mut lines = reader.lines();
 
-    // Iterate over each line in the file
-    for line in reader.lines() {
-        // If the line can be parsed as a string
+    while let Some(line) = lines.next() {
         if let Ok(line) = line {
-            // Split the line into whitespace-separated parts
-            let mut iter = line.split_whitespace();
+            if let Some((identifier, value)) = line.split_once(' ') {
+                let statement = Statement {
+                    identifier: identifier.to_string(),
+                    value: value.to_string(),
+                };
 
-            // Get the first part as the statement identifier
-            let identifier = iter.next().unwrap_or("");
-
-            // Get the second part as the statement value
-            let value = iter.next().unwrap_or("NONE").to_string();
-
-            // Create a new statement with the identifier and value
-            let statement = Statement {
-                identifier: identifier.to_string(),
-                value: value.to_string(),
-            };
-
-            queue.push_back(statement);
+                queue.push_back(statement);
+            }
         }
     }
 
-    // Return the queue of statements
-    return queue;
+    queue
 }
