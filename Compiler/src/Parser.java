@@ -86,8 +86,10 @@ public class Parser {
             statements.add(new Setter("0"));
         else statements.add(new Setter("false"));
 
-        if (!currentOperator.equals("+") && !currentDataType.equals("bool"))
+        if (!currentOperator.equals("+") && !currentDataType.equals("bool")){
             statements.add(new Operation("+"));
+            currentOperator = "+";
+        }
 
         index++;
 

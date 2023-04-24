@@ -32,8 +32,6 @@ type int
 var result
 load result
 set 0
-op +
 get a
-op +
 get b
 get c

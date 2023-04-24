@@ -4,11 +4,12 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::time::Instant;
 
-use crate::executor::{execute, print_variables};
+use crate::executor::{execute, print_variables, State};
 use crate::statement::Statement;
 
 mod executor;
 mod statement;
+mod calculator;
 
 fn main() {
     let start = Instant::now();
@@ -23,13 +24,22 @@ fn main() {
     // Parse the statements from the input file into a queue
     let queue = get_queue_of_statements(reader);
 
+    let mut state = State {
+        class: String::new(),
+        directory: String::new(),
+        operation: String::new(),
+        variable_type: None,
+        loaded_variable: None,
+        variables: Vec::new(),
+        variable_value: Vec::new(),
+    };
+
     for val in queue {
-        unsafe { execute(val); }
+        execute(&mut state, val);
     }
 
     let elapsed = start.elapsed();
 
-    unsafe { print_variables(); }
     println!("Run time: {}", elapsed.as_millis());
 }
 
