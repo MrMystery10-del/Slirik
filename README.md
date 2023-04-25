@@ -15,16 +15,45 @@ To get started with Slirik, you will need to install the compiler and interprete
 Once you have installed Slirik, you can start writing code using your favorite text editor. Slirik files have the extension .sk
 
 ## Examples
-Here is an example "Hello World" program written in Slirik:
+Here is an example of x to the power of y function written in Slirik:
 ```java
-function main() {
-  print("Hello World");
+function main(args | String[]) {
+  int x = 5;
+  int y = 3;
+  
+  println!("The result of {} to the power of {} is: {}!", x, y, pow(x, y));
+}
+
+function pow(x, y | int) &int {
+  result = x;
+  for 1..y {
+    result *= x;
+  }
+  return result;
 }
 ```
 
-Output of the code
+You can also use methods inside of your functions, here is the same example but with using methods:
+```java
+function main(args | String[]) {
+  int x = 5;
+  int y = 3;
+  
+  println!("The result of {} to the power of {} is: {}!", x, y, pow());
+  
+  pow() &int {
+    result = x;
+    for 1..y {
+      result *= x;
+    }
+    return result;
+  }
+}
+```
+
+Output of both examples
 ```bash
-Hello World
+The result of 5 to the power of 3 is: 125!
 ```
 
 ## Contributing
