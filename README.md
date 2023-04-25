@@ -20,6 +20,7 @@ Here is an example of x to the power of y function written in Slirik:
 function main(args | String[]) {
   int x = 5;
   int y = 3;
+  
   println!("The result of {} to the power of {} is: {}!", x, y, pow(x, y));
 }
 
@@ -32,7 +33,25 @@ function pow(x, y | int) &int {
 }
 ```
 
-Output of the code
+You can also use methods inside of your functions, here is the same example but with using methods:
+```java
+function main(args | String[]) {
+  int x = 5;
+  int y = 3;
+  
+  println!("The result of {} to the power of {} is: {}!", x, y, pow());
+  
+  pow() &int {
+    result = x;
+    for 1..y {
+      result *= x;
+    }
+    return result;
+  }
+}
+```
+
+Output of both examples
 ```bash
 The result of 5 to the power of 4 is: 125!
 ```
