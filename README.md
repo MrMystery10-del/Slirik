@@ -53,7 +53,7 @@ function main(args | String[]) {
 
 Output of both examples
 ```bash
-The result of 5 to the power of 4 is: 125!
+The result of 5 to the power of 3 is: 125!
 ```
 
 ## Contributing
