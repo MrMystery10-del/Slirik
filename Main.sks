@@ -9,7 +9,6 @@ var k
 load k
 set 0
 add 3
-type float
 var a
 load a
 set 0
@@ -28,7 +27,6 @@ load c
 set 0
 op +
 add 5
-type int
 var result
 load result
 set 0

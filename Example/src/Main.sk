@@ -1,8 +1,8 @@
-int x = 2;
-int k = 3;
+x = 2;
+k = 3;
 
-float a = x ^ 2;
-float b = k * x;
-float c = 5;
+a = x ^ 2;
+b = k * x;
+c = 5;
 
-int result = a + b + c;
+result = a + b + c;

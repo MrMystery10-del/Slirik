@@ -41,6 +41,8 @@ fn main() {
     let elapsed = start.elapsed();
 
     println!("Run time: {}", elapsed.as_millis());
+
+    print_variables(state);
 }
 
 // Get a buffered reader for a file given its path
