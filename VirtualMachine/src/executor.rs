@@ -1,7 +1,7 @@
 use std::ops::{Add, Div, Mul, Rem, Sub};
 use std::string::ToString;
-use crate::calculator::calculate;
 
+use crate::calculator::calculate;
 use crate::Statement;
 
 pub struct State {
@@ -10,6 +10,7 @@ pub struct State {
     pub operation: String,
     pub variable_type: Option<String>,
     pub loaded_variable: Option<String>,
+    pub condition: (Option<String>, Option<String>, Option<String>),
     pub variables: Vec<(String, String, String)>,
     pub variable_value: Vec<(String, Storage)>,
 }
@@ -19,7 +20,8 @@ pub struct Storage {
     pub value: String,
 }
 
-pub fn execute(mut state: &mut State, statement: Statement) -> &mut State {
+pub fn execute(mut state: &mut State, statement: Statement) -> bool {
+    let mut skip = false;
     match statement.identifier.as_str() {
         "dir" => state.directory = statement.value,
         "var" => {
@@ -71,16 +73,81 @@ pub fn execute(mut state: &mut State, statement: Statement) -> &mut State {
                         add_value(state, storage.value.clone());
                     }
                 }
-                None => print_error(String::from("ERROR"), format!("No variable is loaded to get: {} {}", statement.identifier, statement.value))
+                None => {
+                    print_error(String::from("ERROR"), format!("No variable is loaded to get: {} {}", statement.identifier, statement.value));
+                    panic!();
+                }
             }
         }
         "op" => {
             state.operation = statement.value;
         }
+        "con" => con(state, statement),
+        "cop" => {
+            if state.condition.1.is_none() {
+                state.condition.1 = Some(statement.value);
+            } else {
+                print_error(String::from("ERROR"), String::from("Unexpected condition declaration"));
+                panic!();
+            }
+        }
+        "skip" => {
+            if !check_condition(state) {
+                skip = true;
+            }
+        }
         _ => print_error(String::from("WARNING"), format!("Undefined statement: {}", &statement.identifier)),
     }
+    skip
+}
 
-    state
+fn con(state: &mut State, statement: Statement) {
+    match (state.condition.0.is_none(), state.condition.2.is_none()) {
+        (true, _) => state.condition.0 = Some(statement.value),
+        (_, true) => state.condition.2 = Some(statement.value),
+        _ => {
+            check_condition(state);
+            con;
+        }
+    }
+}
+
+fn check_condition(state: &mut State) -> bool {
+    let mut condition = false;
+
+    let operator = state.condition.1.as_ref().expect("Unexpected condition declaration");
+    let num1 = state.condition.0.as_ref().unwrap().parse::<f64>().expect("Invalid number format");
+    let num2 = state.condition.2.as_ref().unwrap().parse::<f64>().expect("Invalid number format");
+
+    match operator.as_str() {
+        "<" => {
+            if num1 < num2 {
+                clear_condition(state);
+                condition = true;
+            }
+        }
+        ">" => {
+            if num1 > num2 {
+                clear_condition(state);
+                condition = true;
+            }
+        }
+        "==" => {
+            if state.condition.0 == state.condition.2 {
+                clear_condition(state);
+                condition = true;
+            }
+        }
+        _ => {
+            print_error(String::from("ERROR"), String::from("Invalid operator"));
+            panic!();
+        }
+    }
+    condition
+}
+
+fn clear_condition(state: &mut State) {
+    state.condition = (None, None, None);
 }
 
 fn add_value(state: &mut State, value: String) {

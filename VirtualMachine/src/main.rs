@@ -30,12 +30,18 @@ fn main() {
         operation: String::new(),
         variable_type: None,
         loaded_variable: None,
+        condition: (None, None, None),
         variables: Vec::new(),
         variable_value: Vec::new(),
     };
 
+    let mut skip = false;
     for val in queue {
-        execute(&mut state, val);
+        if val.identifier == "end" {
+            skip = false;
+        } else if !skip {
+            skip = execute(&mut state, val);
+        }
     }
 
     let elapsed = start.elapsed();

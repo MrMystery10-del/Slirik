@@ -45,17 +45,17 @@ public class Lexer {
                 continue;
             }
             if (c == '=') {
-                tokenList.add(new Token("=", TokenType.EQUALS));
+                tokenList.add(new Token(String.valueOf(c), TokenType.EQUALS));
                 i++;
                 continue;
             }
-            if (c == '(') {
-                tokenList.add(new Token("(", TokenType.OPEN_PAREN));
+            if (c == '{') {
+                tokenList.add(new Token(String.valueOf(c), TokenType.OPEN_PAREN));
                 i++;
                 continue;
             }
-            if (c == ')') {
-                tokenList.add(new Token(")", TokenType.CLOSE_PAREN));
+            if (c == '}') {
+                tokenList.add(new Token(String.valueOf(c), TokenType.CLOSE_PAREN));
                 i++;
                 continue;
             }

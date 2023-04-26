@@ -1,35 +1,17 @@
 dir global
 type int
 op +
-var x
-load x
+con 1
+cop >
+con 0
+skip 
+con 5
+cop <
+con 10
+skip 
+var number
+load number
 set 0
-add 2
-var k
-load k
-set 0
-add 3
-var a
-load a
-set 0
-get x
-op ^
-add 2
-var b
-load b
-set 0
-op +
-get k
-op *
-get x
-var c
-load c
-set 0
-op +
-add 5
-var result
-load result
-set 0
-get a
-get b
-get c
+add 10
+end 
+end 

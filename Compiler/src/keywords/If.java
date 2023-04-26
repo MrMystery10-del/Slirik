@@ -1,10 +1,7 @@
 package keywords;
 
 import core.Lexer;
-import statements.Block;
-import statements.Condition;
-import statements.ConditionOperation;
-import statements.Statement;
+import statements.*;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,8 +12,6 @@ public class If implements Keyword {
     private final List<Statement> body = new LinkedList<>();
 
     public If(List<Lexer.Token> tokens) {
-        body.add(new Block(""));
-
         Lexer.Token token;
         Iterator<Lexer.Token> iterator = tokens.iterator();
 
@@ -36,6 +31,8 @@ public class If implements Keyword {
                 }
             } else throw new IllegalArgumentException();
         }
+
+        body.add(new Skip());
     }
 
     @Override

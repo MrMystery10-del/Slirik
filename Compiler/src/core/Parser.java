@@ -40,21 +40,22 @@ public class Parser {
         statements.add(new Operation(currentOperator));
 
         // Loop through tokens and decide which operation should happen to generate a bytecode statement for each token
-        while (index < tokens.size()) {
-            switch (tokens.get(index).tokenType()) {
-                case TYPE -> whenType();
-                case IDENTIFIER -> whenIdentifier();
-                case EQUALS -> whenEquals();
-                case NUMBER -> whenNumber();
-                case BINARY_OPERATOR -> whenBinaryOperation();
-                case OPEN_PAREN -> whenOpenParen();
-                case CLOSE_PAREN -> whenCloseParen();
-                case END -> whenEnd();
-                case KEYWORD -> whenKeyWord();
-            }
-            index++;
-        }
+        for (;index < tokens.size(); index++) identifyToken();
         return statements;
+    }
+
+    private void identifyToken(){
+        switch (tokens.get(index).tokenType()) {
+            case TYPE -> whenType();
+            case IDENTIFIER -> whenIdentifier();
+            case EQUALS -> whenEquals();
+            case NUMBER -> whenNumber();
+            case BINARY_OPERATOR -> whenBinaryOperation();
+            case OPEN_PAREN -> whenOpenParen();
+            case CLOSE_PAREN -> whenCloseParen();
+            case END -> whenEnd();
+            case KEYWORD -> whenKeyWord();
+        }
     }
 
     /*
@@ -132,7 +133,15 @@ public class Parser {
             If keyword = new If(headTokens);
 
             statements.addAll(keyword.getKeywordBody());
+
+            index++;
+            addBody();
         }
+    }
+
+    private void addBody() {
+        for (; tokens.get(index).tokenType() != Lexer.TokenType.CLOSE_PAREN; index++) identifyToken();
+        statements.add(new End());
     }
 
     // Generate bytecode statements for the math expression
