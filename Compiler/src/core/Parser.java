@@ -44,6 +44,7 @@ public class Parser {
         return statements;
     }
 
+    // Executes an action for adding statements based on token
     private void identifyToken(){
         switch (tokens.get(index).tokenType()) {
             case TYPE -> whenType();
@@ -88,7 +89,8 @@ public class Parser {
 
         if (currentDataType.equals("int") || currentDataType.equals("float"))
             statements.add(new Setter("0"));
-        else statements.add(new Setter("false"));
+        else
+            statements.add(new Setter("false"));
 
         if (!currentOperator.equals("+") && !currentDataType.equals("bool")) {
             statements.add(new Operation("+"));
@@ -130,18 +132,11 @@ public class Parser {
                 headTokens.add(tokens.get(index));
             }
 
-            If keyword = new If(headTokens);
-
-            statements.addAll(keyword.getKeywordBody());
+            statements.addAll(new If(headTokens).getKeywordBody());
 
             index++;
             addBody();
         }
-    }
-
-    private void addBody() {
-        for (; tokens.get(index).tokenType() != Lexer.TokenType.CLOSE_PAREN; index++) identifyToken();
-        statements.add(new End());
     }
 
     // Generate bytecode statements for the math expression
@@ -167,5 +162,11 @@ public class Parser {
 
             index++;
         }
+    }
+
+    // Add body statements for a keyword head
+    private void addBody() {
+        for (; tokens.get(index).tokenType() != Lexer.TokenType.CLOSE_PAREN; index++) identifyToken();
+        statements.add(new End());
     }
 }

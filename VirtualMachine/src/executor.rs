@@ -1,4 +1,3 @@
-use std::ops::{Add, Div, Mul, Rem, Sub};
 use std::string::ToString;
 
 use crate::calculator::calculate;
@@ -23,7 +22,58 @@ pub struct Storage {
 pub fn execute(mut state: &mut State, statement: Statement) -> bool {
     let mut skip = false;
     match statement.identifier.as_str() {
+        "add" => {
+            if let Some(variable_type) = &state.variable_type {
+                match variable_type.as_str() {
+                    "int" | "float" => add_value(state, statement.value),
+                    _ => print_error(String::from("WARNING"), format!("The statement 'add' is not allowed for {}", variable_type))
+                }
+            }
+        }
+        "con" => con(state, statement),
+        "cop" => {
+            if state.condition.1.is_none() {
+                state.condition.1 = Some(statement.value);
+            } else {
+                print_error(String::from("ERROR"), String::from("Unexpected condition declaration"));
+                panic!();
+            }
+        }
         "dir" => state.directory = statement.value,
+        "get" => {
+            match &state.loaded_variable {
+                Some(..) => {
+                    if let Some(storage) = state.variable_value.iter().find(|(var_name, _)| var_name == &statement.value).map(|(_, storage)| storage) {
+                        add_value(state, storage.value.clone());
+                    }
+                }
+                None => {
+                    print_error(String::from("ERROR"), format!("No variable is loaded to get: {} {}", statement.identifier, statement.value));
+                    panic!();
+                }
+            }
+        }
+        "load" => {
+            if state.variables.contains(&(state.class.clone(), state.directory.clone(), statement.value.clone())) {
+                state.loaded_variable = Some(statement.value.clone());
+            } else if state.directory == "local" && state.variables.contains(&(state.class.clone(), "global".to_string(), statement.value.clone())) {
+                state.loaded_variable = Some(statement.value.clone());
+            } else {
+                print_error(String::from("ERROR"), format!("Undefined variable name: {}", &statement.value));
+            }
+        }
+        "op" => state.operation = statement.value,
+        "set" => {
+            if let Some(loaded_variable) = &state.loaded_variable {
+                for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == loaded_variable).map(|(_, storage)| storage) {
+                    storage.value = statement.value.clone();
+                }
+            }
+        }
+        "skip" => if !check_condition(state) {
+            skip = true;
+        }
+        "type" => state.variable_type = Some(statement.value),
         "var" => {
             let value = &statement.value;
             if !state.variables.contains(&(state.class.clone(), state.directory.clone(), value.clone())) {
@@ -41,61 +91,6 @@ pub fn execute(mut state: &mut State, statement: Statement) -> bool {
                 }
             }
         }
-        "type" => state.variable_type = Some(statement.value),
-        "load" => {
-            if state.variables.contains(&(state.class.clone(), state.directory.clone(), statement.value.clone())) {
-                state.loaded_variable = Some(statement.value.clone());
-            } else if state.directory == "local" && state.variables.contains(&(state.class.clone(), "global".to_string(), statement.value.clone())) {
-                state.loaded_variable = Some(statement.value.clone());
-            } else {
-                print_error(String::from("ERROR"), format!("Undefined variable name: {}", &statement.value));
-            }
-        }
-        "set" => {
-            if let Some(loaded_variable) = &state.loaded_variable {
-                for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == loaded_variable).map(|(_, storage)| storage) {
-                    storage.value = statement.value.clone();
-                }
-            }
-        }
-        "add" => {
-            if let Some(variable_type) = &state.variable_type {
-                match variable_type.as_str() {
-                    "int" | "float" => add_value(state, statement.value),
-                    _ => print_error(String::from("WARNING"), format!("The statement 'add' is not allowed for {}", variable_type))
-                }
-            }
-        }
-        "get" => {
-            match &state.loaded_variable {
-                Some(..) => {
-                    if let Some(storage) = state.variable_value.iter().find(|(var_name, _)| var_name == &statement.value).map(|(_, storage)| storage) {
-                        add_value(state, storage.value.clone());
-                    }
-                }
-                None => {
-                    print_error(String::from("ERROR"), format!("No variable is loaded to get: {} {}", statement.identifier, statement.value));
-                    panic!();
-                }
-            }
-        }
-        "op" => {
-            state.operation = statement.value;
-        }
-        "con" => con(state, statement),
-        "cop" => {
-            if state.condition.1.is_none() {
-                state.condition.1 = Some(statement.value);
-            } else {
-                print_error(String::from("ERROR"), String::from("Unexpected condition declaration"));
-                panic!();
-            }
-        }
-        "skip" => {
-            if !check_condition(state) {
-                skip = true;
-            }
-        }
         _ => print_error(String::from("WARNING"), format!("Undefined statement: {}", &statement.identifier)),
     }
     skip
@@ -107,7 +102,7 @@ fn con(state: &mut State, statement: Statement) {
         (_, true) => state.condition.2 = Some(statement.value),
         _ => {
             check_condition(state);
-            con;
+            con(state, statement);
         }
     }
 }
