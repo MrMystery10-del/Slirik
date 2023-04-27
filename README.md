@@ -60,6 +60,9 @@ Output of both examples
 The result of 5 to the power of 3 is: 125!
 ```
 
+## Structure
+Slirik's structure stands out from other languages in several ways. Firstly, its source code is compiled using Java into custom bytecode which is then executed by the Rust VM. Secondly, the bytecode is unique in that it is in text form rather than binary format. This allows developers to optimize the code to its fullest potential, making it an excellent tool for those interested in learning Assembly. The bytecode is designed to be both simple and readable, making it easy to learn and a great starting point for those taking their first steps into Assembly programming.
+
 ## Contributing
 I founded Slirik and have been responsible for its development. However, I've discovered that maintaining an efficient structure and optimal performance on my own can be challenging. Therefore, I would greatly appreciate any contributions from others, whether they are in the form of code for the Java compiler or the Rust VM, or simply additional documentation.
 
