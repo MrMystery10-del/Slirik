@@ -12,6 +12,8 @@ public class If implements Keyword {
     private final List<Statement> body = new LinkedList<>();
 
     public If(List<Lexer.Token> tokens) {
+        body.add(new Block(""));
+
         Lexer.Token token;
         Iterator<Lexer.Token> iterator = tokens.iterator();
 

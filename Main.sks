@@ -1,17 +1,14 @@
 dir global
 type int
 op +
-con 1
-cop >
-con 0
-skip 
-con 5
+var num
+load num
+set 1
+block
+con num
 cop <
 con 10
-skip 
-var number
-load number
-set 0
-add 10
-end 
-end 
+skip
+add 1
+jump
+end

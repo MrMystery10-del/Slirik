@@ -22,7 +22,7 @@ fn main() {
     let reader = get_reader(file_path);
 
     // Parse the statements from the input file into a queue
-    let queue = get_queue_of_statements(reader);
+    let queue = Vec::from(get_queue_of_statements(reader));
 
     let mut state = State {
         class: String::new(),
@@ -36,11 +36,41 @@ fn main() {
     };
 
     let mut skip = false;
-    for val in queue {
-        if val.identifier == "end" {
-            skip = false;
-        } else if !skip {
-            skip = execute(&mut state, val);
+    let mut index = 0;
+    let mut endPoint = 0;
+    let mut blocks: VecDeque<usize> = VecDeque::new();
+    loop {
+        if index >= queue.len() {
+            break;
+        }
+
+        let mut statement: Statement = queue.get(index).into();
+
+        if !skip {
+            if statement.identifier == "block" && statement.value == "NONE" {
+                blocks.push_back(index + 1);
+                endPoint += 1;
+                index += 1;
+                continue;
+            } else if statement.identifier == "jump" && statement.value == "NONE" {
+                index = *blocks.back().unwrap();
+                continue;
+            } else if statement.identifier == "end" {
+                index += 1;
+                continue;
+            }
+
+            skip = execute(&mut state, statement);
+            index += 1;
+        } else {
+            if statement.identifier == "end" {
+                if endPoint == 1 {
+                    skip = true;
+                }
+                endPoint -= 1;
+            }
+            index += 1;
+            continue;
         }
     }
 
@@ -64,14 +94,20 @@ fn get_queue_of_statements(reader: BufReader<File>) -> VecDeque<Statement> {
 
     while let Some(line) = lines.next() {
         if let Ok(line) = line {
-            if let Some((identifier, value)) = line.split_once(' ') {
-                let statement = Statement {
-                    identifier: identifier.to_string(),
-                    value: value.to_string(),
-                };
-
-                queue.push_back(statement);
+            let mut identifier = String::new();
+            let mut value = String::new();
+            if let Some((id, val)) = line.split_once(' ') {
+                identifier = id.to_string();
+                value = val.to_string();
+            } else if !line.trim().is_empty() {
+                identifier = line.trim().to_string();
+                value = "NONE".to_string();
             }
+            let statement = Statement {
+                identifier,
+                value,
+            };
+            queue.push_back(statement);
         }
     }
 

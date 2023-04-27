@@ -111,8 +111,24 @@ fn check_condition(state: &mut State) -> bool {
     let mut condition = false;
 
     let operator = state.condition.1.as_ref().expect("Unexpected condition declaration");
-    let num1 = state.condition.0.as_ref().unwrap().parse::<f64>().expect("Invalid number format");
-    let num2 = state.condition.2.as_ref().unwrap().parse::<f64>().expect("Invalid number format");
+    let mut num1: f64 = 0 as f64;
+    let mut num2: f64 = 0 as f64;
+    if state.condition.0.as_ref().unwrap().chars().next().map_or(false, |c| c.is_numeric()) {
+        num1 = state.condition.0.as_ref().unwrap().parse::<f64>().expect("Invalid number format");
+    } else {
+        if let Some(loaded_variable) = &state.loaded_variable {
+            for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == state.condition.0.as_ref().unwrap()).map(|(_, storage)| storage) {
+                num1 = storage.value.parse().unwrap();
+            }
+        }
+    }
+    if state.condition.2.as_ref().unwrap().chars().next().map_or(false, |c| c.is_numeric()) {
+        num2 = state.condition.2.as_ref().unwrap().parse::<f64>().expect("Invalid number format");
+    } else {
+        for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == state.condition.2.as_ref().unwrap()).map(|(_, storage)| storage) {
+            num2 = storage.value.parse().unwrap();
+        }
+    }
 
     match operator.as_str() {
         "<" => {
