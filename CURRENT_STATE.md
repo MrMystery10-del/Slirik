@@ -23,6 +23,10 @@ b = 3.4;
 int
 c = 3;
 d = 6783;
+
+bool
+e = true;
+f = false;
 ```
 
 Bytecode representation
@@ -48,6 +52,15 @@ var d
 load d
 set 0
 add 6783
+type bool
+var e
+load e
+set false
+get true
+var f
+load f
+set false
+get false
 ```
 
 ## If keyword
