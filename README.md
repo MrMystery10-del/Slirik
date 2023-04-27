@@ -61,7 +61,11 @@ The result of 5 to the power of 3 is: 125!
 ```
 
 ## Contributing
-We welcome contributions to Slirik from the community. If you would like to contribute, please read our contributing guidelines to get started.
+I founded Slirik and have been responsible for its development. However, I've discovered that maintaining an efficient structure and optimal performance on my own can be challenging. Therefore, I would greatly appreciate any contributions from others, whether they are in the form of code for the Java compiler or the Rust VM, or simply additional documentation.
+
+To fully test and debug the program, it's essential to have both languages installed, and it's recommended to use Intellij IDEA with a Rust plugin. Remember to set the working directory to the Slirik directory to facilitate debugging.
+
+When creating a pull request, please provide a descriptive name and explanation of the changes you've made.
 
 ## License
 Slirik is released under the Apache 2.0 License.
