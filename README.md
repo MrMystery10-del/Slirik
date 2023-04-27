@@ -2,8 +2,8 @@
 Slirik is a modern programming language designed to offer the best of both worlds: the simplicity and ease of use of a scripting language, as well as the power and performance of a deep language. Slirik has a unique mix of a compiler and interpreter, making it flexible and efficient.
 
 # IMPORTANT
-Slirik is under developement, not all features on that readme are already implemented
-Read this for more information on current progress https://github.com/MrMystery10-del/Slirik/blob/main/CURRENT_STATE.md
+- Slirik is under developement, not all features on that readme are already implemented
+- Read this for more information on current progress https://github.com/MrMystery10-del/Slirik/blob/main/CURRENT_STATE.md
 
 ## Features
 - Slirik has a simple and intuitive syntax, making it easy for beginners to learn and use.
