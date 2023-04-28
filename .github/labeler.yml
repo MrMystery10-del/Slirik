@@ -1,0 +1,9 @@
+mappings:
+  - labels:
+      - VM
+    paths:
+      - VirtualMachine/**/*
+  - labels:
+      - compiler
+    paths:
+      - Compiler/**/*
