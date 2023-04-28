@@ -1,5 +1,7 @@
 package statements;
 
+import java.util.Objects;
+
 public abstract class Statement {
 
     private final String STATEMENT;
@@ -16,5 +18,17 @@ public abstract class Statement {
     @Override
     public String toString() {
         return STATEMENT + " " + VALUE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Statement statement)) return false;
+        return STATEMENT.equals(statement.STATEMENT) && VALUE.equals(statement.VALUE);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(STATEMENT, VALUE);
     }
 }

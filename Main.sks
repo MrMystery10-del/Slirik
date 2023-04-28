@@ -3,12 +3,14 @@ type int
 op +
 var num
 load num
-set 1
-block
+set 0
+add 1
+block NONE
 con num
 cop <
 con 10
-skip
+skip 
+load num
 add 1
-jump
-end
+jump NONE
+end 

@@ -7,11 +7,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class If implements Keyword {
+public class While implements Keyword {
 
     private final List<Statement> body = new LinkedList<>();
 
-    public If(List<Lexer.Token> tokens) {
+    public While(List<Lexer.Token> tokens) {
         body.add(new Block("NONE"));
 
         Lexer.Token token;

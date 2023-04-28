@@ -1,6 +1,7 @@
 package core;
 
 import keywords.If;
+import keywords.While;
 import statements.*;
 
 import java.util.LinkedList;
@@ -40,12 +41,12 @@ public class Parser {
         statements.add(new Operation(currentOperator));
 
         // Loop through tokens and decide which operation should happen to generate a bytecode statement for each token
-        for (;index < tokens.size(); index++) identifyToken();
+        for (; index < tokens.size(); index++) identifyToken();
         return statements;
     }
 
     // Executes an action for adding statements based on token
-    private void identifyToken(){
+    private void identifyToken() {
         switch (tokens.get(index).tokenType()) {
             case TYPE -> whenType();
             case IDENTIFIER -> whenIdentifier();
@@ -74,7 +75,10 @@ public class Parser {
      * Adds bytecode statement for creating new a variable
      */
     private void whenIdentifier() {
-        statements.add(new Variable(tokens.get(index).value()));
+        Statement var = new Variable(tokens.get(index).value());
+        if (!statements.contains(var))
+            statements.add(var);
+        else statements.add(new Load(tokens.get(index).value()));
     }
 
     /*
@@ -107,7 +111,20 @@ public class Parser {
     }
 
     private void whenBinaryOperation() {
-        throw new IllegalArgumentException("Illegal start of statement");
+        Lexer.Token token = tokens.get(index);
+        Lexer.Token lastToken = tokens.get(index - 1);
+        if (lastToken.tokenType() == Lexer.TokenType.IDENTIFIER) {
+            if (!token.value().equals(currentOperator)) {
+                statements.add(new Operation(token.value()));
+                currentOperator = token.value();
+            }
+            index++;
+            token = tokens.get(index);
+            if (token.tokenType() == Lexer.TokenType.NUMBER) {
+                statements.add(new Adder(token.value()));
+            } else throw new IllegalArgumentException();
+            index++;
+        }
     }
 
     private void whenOpenParen() {
@@ -123,19 +140,23 @@ public class Parser {
     }
 
     private void whenKeyWord() {
-        if (tokens.get(index).value().equals("if")) {
+        String keyword = tokens.get(index).value();
+        index++;
+        if (keyword.equals("if") || keyword.equals("while")) {
             List<Lexer.Token> headTokens = new LinkedList<>();
-
+            // Add the tokens before the opening parenthesis to the headTokens list
             while (index < tokens.size() && tokens.get(index).tokenType() != Lexer.TokenType.OPEN_PAREN) {
-                index++;
-
                 headTokens.add(tokens.get(index));
+                index++;
             }
-
-            statements.addAll(new If(headTokens).getKeywordBody());
-
             index++;
-            addBody();
+            if (keyword.equals("if")) {
+                statements.addAll(new If(headTokens).getKeywordBody());
+                addBody(false);
+            } else {
+                statements.addAll(new While(headTokens).getKeywordBody());
+                addBody(true);
+            }
         }
     }
 
@@ -165,8 +186,9 @@ public class Parser {
     }
 
     // Add body statements for a keyword head
-    private void addBody() {
+    private void addBody(boolean jump) {
         for (; tokens.get(index).tokenType() != Lexer.TokenType.CLOSE_PAREN; index++) identifyToken();
+        if (jump) statements.add(new Jump("NONE"));
         statements.add(new End());
     }
 }
