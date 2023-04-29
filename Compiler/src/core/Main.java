@@ -15,14 +15,14 @@ public class Main {
         long writeTime;
 
         File inputFile;
-        String outPutDirectory;
+        String outPutDirectory = "VirtualMachine/";
 
         if (args.length == 1) {
             inputFile = new File(args[0]);
         } else if (args.length == 2) {
             inputFile = new File(args[0]);
             outPutDirectory = args[1];
-        }else inputFile = new File(selectFile());
+        } else inputFile = new File(selectFile());
 
 
         time = System.nanoTime();
@@ -35,7 +35,7 @@ public class Main {
         compileTime = ((System.nanoTime() - time) / 1_000_000);
         time = System.nanoTime();
 
-        generateBytecodeFile(inputFile.getName(), statements);
+        generateBytecodeFile(outPutDirectory + inputFile.getName(), statements);
         writeTime = ((System.nanoTime() - time) / 1_000_000);
 
         System.out.println("Compile time: " + compileTime + "ms");
@@ -65,7 +65,7 @@ public class Main {
 
     private static void generateBytecodeFile(String fileIdentifier, Queue<Statement> statements) {
         File byteCode = new File(fileIdentifier.substring(0, fileIdentifier.length() - 3) + ".sks");
-        try (FileWriter writer = new FileWriter(byteCode)){
+        try (FileWriter writer = new FileWriter(byteCode)) {
             while (!statements.isEmpty())
                 writer.write(statements.poll().toString() + "\n");
         } catch (IOException exception) {

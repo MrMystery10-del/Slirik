@@ -19,7 +19,7 @@ fn main() {
     // Collect the command line arguments for getting the path of the source code
     let _args: Vec<String> = env::args().collect();
 
-    let file_path = "C:\\Users\\Mr.Mystery 1.0\\Desktop\\Slirik\\Main.sks";
+    let file_path = "Main.sks";
 
     let reader = get_reader(file_path);
 
