@@ -37,7 +37,7 @@ fn main() {
 
     let mut skip = false;
     let mut index = 0;
-    let mut endPoint = 0;
+    let mut end_point = 0;
     let mut blocks: VecDeque<usize> = VecDeque::new();
     loop {
         if index >= queue.len() {
@@ -47,15 +47,21 @@ fn main() {
         let mut statement: Statement = queue.get(index).into();
 
         if !skip {
-            if statement.identifier == "block" && statement.value == "NONE" {
-                blocks.push_back(index + 1);
-                endPoint += 1;
+            if statement.identifier == "block" {
+                if !(statement.value == "NONE"){
+                    blocks.push_back(index + 1);
+                    end_point += 1;
+                }
                 index += 1;
                 continue;
+            } else if statement.identifier == "skip" && statement.value == "NONE" {
+                blocks.push_back(index);
+                end_point += 1;
             } else if statement.identifier == "jump" && statement.value == "NONE" {
                 index = *blocks.back().unwrap();
                 continue;
             } else if statement.identifier == "end" {
+                execute(&mut state, statement);
                 index += 1;
                 continue;
             }
@@ -64,10 +70,11 @@ fn main() {
             index += 1;
         } else {
             if statement.identifier == "end" {
-                if endPoint == 1 {
+                if end_point == 1 {
+                    execute(&mut state, statement);
                     skip = true;
                 }
-                endPoint -= 1;
+                end_point -= 1;
             }
             index += 1;
             continue;

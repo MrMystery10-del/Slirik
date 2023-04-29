@@ -8,8 +8,8 @@ add 1
 block NONE
 con num
 cop <
-con 10
-skip 
+con 10000
+skip NONE
 load num
 add 1
 jump NONE

@@ -8,6 +8,6 @@ public class Skip extends Statement {
     private static final String STATEMENT = "skip";
 
     public Skip() {
-        super(STATEMENT, "");
+        super(STATEMENT, "NONE");
     }
 }

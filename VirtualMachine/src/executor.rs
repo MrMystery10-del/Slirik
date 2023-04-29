@@ -40,6 +40,7 @@ pub fn execute(mut state: &mut State, statement: Statement) -> bool {
             }
         }
         "dir" => state.directory = statement.value,
+        "end" => clear_condition(state),
         "get" => {
             match &state.loaded_variable {
                 Some(..) => {
@@ -135,19 +136,16 @@ fn check_condition(state: &mut State) -> bool {
     match operator.as_str() {
         "<" => {
             if num1 < num2 {
-                clear_condition(state);
                 condition = true;
             }
         }
         ">" => {
             if num1 > num2 {
-                clear_condition(state);
                 condition = true;
             }
         }
         "==" => {
             if state.condition.0 == state.condition.2 {
-                clear_condition(state);
                 condition = true;
             }
         }
