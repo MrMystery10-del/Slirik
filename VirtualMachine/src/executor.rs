@@ -1,6 +1,8 @@
+use std::collections::HashMap;
 use std::string::ToString;
 
 use crate::calculator::calculate;
+use crate::executor_helper::{add_value, check_condition, clear_condition, print_warning};
 use crate::Statement;
 
 pub struct State {
@@ -11,7 +13,7 @@ pub struct State {
     pub loaded_variable: Option<String>,
     pub condition: (Option<String>, Option<String>, Option<String>),
     pub variables: Vec<(String, String, String)>,
-    pub variable_value: Vec<(String, Storage)>,
+    pub variable_value: HashMap<String, Storage>,
 }
 
 pub struct Storage {
@@ -20,81 +22,34 @@ pub struct Storage {
 }
 
 pub fn execute(mut state: &mut State, statement: Statement) -> bool {
-    let mut skip = false;
+    let mut doSkip = false;
     match statement.identifier.as_str() {
-        "add" => {
-            if let Some(variable_type) = &state.variable_type {
-                match variable_type.as_str() {
-                    "int" | "float" => add_value(state, statement.value),
-                    _ => print_error(String::from("WARNING"), format!("The statement 'add' is not allowed for {}", variable_type))
-                }
-            }
-        }
+        "add" => add(state, statement),
         "con" => con(state, statement),
-        "cop" => {
-            if state.condition.1.is_none() {
-                state.condition.1 = Some(statement.value);
-            } else {
-                print_error(String::from("ERROR"), String::from("Unexpected condition declaration"));
-                panic!();
-            }
-        }
-        "dir" => state.directory = statement.value,
-        "end" => clear_condition(state),
-        "get" => {
-            match &state.loaded_variable {
-                Some(..) => {
-                    if let Some(storage) = state.variable_value.iter().find(|(var_name, _)| var_name == &statement.value).map(|(_, storage)| storage) {
-                        add_value(state, storage.value.clone());
-                    }
-                }
-                None => {
-                    print_error(String::from("ERROR"), format!("No variable is loaded to get: {} {}", statement.identifier, statement.value));
-                    panic!();
-                }
-            }
-        }
-        "load" => {
-            if state.variables.contains(&(state.class.clone(), state.directory.clone(), statement.value.clone())) {
-                state.loaded_variable = Some(statement.value.clone());
-            } else if state.directory == "local" && state.variables.contains(&(state.class.clone(), "global".to_string(), statement.value.clone())) {
-                state.loaded_variable = Some(statement.value.clone());
-            } else {
-                print_error(String::from("ERROR"), format!("Undefined variable name: {}", &statement.value));
-            }
-        }
-        "op" => state.operation = statement.value,
-        "set" => {
-            if let Some(loaded_variable) = &state.loaded_variable {
-                for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == loaded_variable).map(|(_, storage)| storage) {
-                    storage.value = statement.value.clone();
-                }
-            }
-        }
-        "skip" => if !check_condition(state) {
-            skip = true;
-        }
-        "type" => state.variable_type = Some(statement.value),
-        "var" => {
-            let value = &statement.value;
-            if !state.variables.contains(&(state.class.clone(), state.directory.clone(), value.clone())) {
-                state.variables.push((state.class.clone(), state.directory.clone(), value.clone()));
-                if let Some(variable_type) = &state.variable_type {
-                    state.variable_value.push((value.clone(), Storage {
-                        value_type: variable_type.clone(),
-                        value: String::new(),
-                    }))
-                }
-            } else if let Some(variable_type) = &state.variable_type {
-                for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == value).map(|(_, storage)| storage) {
-                    storage.value_type = variable_type.clone();
-                    storage.value = String::new();
-                }
-            }
-        }
-        _ => print_error(String::from("WARNING"), format!("Undefined statement: {}", &statement.identifier)),
+        "cop" => cop(state, statement),
+        "dir" => dir(state, statement),
+        "end" => end(state),
+        "get" => get(state, statement),
+        "load" => load(state, statement),
+        "op" => op(state, statement),
+        "set" => set(state, statement),
+        "skip" => doSkip = skip(state),
+        "type" => setType(state, statement),
+        "var" => var(state, statement),
+        _ => print_warning(format!("Undefined statement: {}", statement.identifier).as_str()),
     }
-    skip
+    doSkip
+}
+
+fn add(state: &mut State, statement: Statement) {
+    match &state.variable_type {
+        Some(variable_type) =>
+            match variable_type.as_str() {
+            "int" | "float" => add_value(state, statement.value),
+            _ => panic!("The statement 'add' is not allowed for {}", variable_type)
+        }
+        None => panic!("No variable type declared")
+    }
 }
 
 fn con(state: &mut State, statement: Statement) {
@@ -108,73 +63,82 @@ fn con(state: &mut State, statement: Statement) {
     }
 }
 
-fn check_condition(state: &mut State) -> bool {
-    let mut condition = false;
-
-    let operator = state.condition.1.as_ref().expect("Unexpected condition declaration");
-    let mut num1: f64 = 0 as f64;
-    let mut num2: f64 = 0 as f64;
-
-    let con1 = state.condition.0.as_ref().unwrap();
-    let con2 = state.condition.2.as_ref().unwrap();
-
-    if con1.chars().next().map_or(false, |c| c.is_numeric()) {
-        num1 = con1.parse::<f64>().expect("Invalid number format");
+fn cop(state: &mut State, statement: Statement) {
+    if state.condition.1.is_none() {
+        state.condition.1 = Some(statement.value);
     } else {
-        for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == con1).map(|(_, storage)| storage) {
-            num1 = storage.value.parse().unwrap();
-        }
+        panic!("Unexpected condition declaration");
     }
-    if con2.chars().next().map_or(false, |c| c.is_numeric()) {
-        num2 = con2.parse::<f64>().expect("Invalid number format");
-    } else {
-        for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == con2).map(|(_, storage)| storage) {
-            num2 = storage.value.parse().unwrap();
-        }
-    }
-
-    match operator.as_str() {
-        "<" => {
-            if num1 < num2 {
-                condition = true;
-            }
-        }
-        ">" => {
-            if num1 > num2 {
-                condition = true;
-            }
-        }
-        "==" => {
-            if state.condition.0 == state.condition.2 {
-                condition = true;
-            }
-        }
-        _ => {
-            print_error(String::from("ERROR"), String::from("Invalid operator"));
-            panic!();
-        }
-    }
-    condition
 }
 
-fn clear_condition(state: &mut State) {
-    state.condition = (None, None, None);
+fn dir(state: &mut State, statement: Statement) {
+    state.directory = statement.value
 }
 
-fn add_value(state: &mut State, value: String) {
-    if let Some(loaded_variable) = &state.loaded_variable {
-        for storage in state.variable_value.iter_mut().filter(|(var_name, _)| var_name == loaded_variable).map(|(_, storage)| storage) {
-            if storage.value_type == "int" {
-                let current_value = storage.value.clone().parse::<f64>().unwrap();
-                let result = calculate(&state.operation, current_value, value.clone().parse::<f64>().unwrap());
-                storage.value = result.to_string();
-            } else if storage.value_type == "float" {
-                let current_value = storage.value.clone().parse::<f64>().unwrap();
-                let result = calculate(&state.operation, current_value, value.clone().parse::<f64>().unwrap());
-                storage.value = result.to_string();
+fn end(state: &mut State) {
+    clear_condition(state)
+}
+
+fn get(state: &mut State, statement: Statement) {
+    match &state.loaded_variable {
+        Some(..) => {
+            if let Some(storage) = state.variable_value.get(&statement.value) {
+                add_value(state, storage.value.clone());
+            }
+        }
+        None => panic!("No variable is loaded to get: {} {}", statement.identifier, statement.value)
+    }
+}
+
+fn load(state: &mut State, statement: Statement) {
+    if state.variables.contains(&(state.class.clone(), state.directory.clone(), statement.value.clone())) {
+        state.loaded_variable = Some(statement.value.clone());
+    } else if state.directory == "local" && state.variables.contains(&(state.class.clone(), "global".to_string(), statement.value.clone())) {
+        state.loaded_variable = Some(statement.value.clone());
+    } else {
+        panic!("Undefined variable name: {}", statement.value);
+    }
+}
+
+fn op(state: &mut State, statement: Statement) {
+    state.operation = statement.value
+}
+
+fn set(state: &mut State, statement: Statement) {
+    match &state.loaded_variable {
+        Some(loaded_variable) => {
+            if let Some(storage) = state.variable_value.get_mut(loaded_variable) {
+                storage.value = statement.value;
             } else {
-                print_error(String::from("ERROR"), format!("The variable type '{}' does not support the 'add' statement", storage.value_type));
+                panic!("No value found for {}", loaded_variable);
             }
+        }
+        None => panic!("Cannot find any loaded variable")
+    }
+}
+
+fn skip(state: &mut State) -> bool {
+    !check_condition(state)
+}
+
+fn setType(state: &mut State, statement: Statement) {
+    state.variable_type = Some(statement.value);
+}
+
+fn var(state: &mut State, statement: Statement) {
+    let value = &statement.value;
+    if !state.variables.contains(&(state.class.clone(), state.directory.clone(), value.clone())) {
+        state.variables.push((state.class.clone(), state.directory.clone(), value.clone()));
+        if let Some(variable_type) = &state.variable_type {
+            state.variable_value.insert(value.clone(), Storage {
+                value_type: variable_type.clone(),
+                value: String::new(),
+            });
+        }
+    } else if let Some(variable_type) = &state.variable_type {
+        if let Some(storage) = state.variable_value.get_mut(value) {
+            storage.value_type = variable_type.clone();
+            storage.value = String::new();
         }
     }
 }
@@ -183,8 +147,4 @@ pub fn print_variables(state: State) {
     for val in state.variable_value {
         println!("{} {} {}", val.1.value_type, val.0, val.1.value);
     }
-}
-
-fn print_error(level: String, message: String) {
-    println!("{} | {}", level, message);
 }

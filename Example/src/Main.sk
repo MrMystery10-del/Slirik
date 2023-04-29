@@ -1,5 +1,5 @@
 num = 1;
 
-while num < 10000 {
+while num < 1000 {
     num + 1;
 }

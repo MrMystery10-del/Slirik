@@ -8,7 +8,7 @@ add 1
 block NONE
 con num
 cop <
-con 10000
+con 1000
 skip NONE
 load num
 add 1

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::collections::vec_deque::VecDeque;
 use std::env;
 use std::fs::File;
@@ -10,6 +11,7 @@ use crate::statement::Statement;
 mod executor;
 mod statement;
 mod calculator;
+mod executor_helper;
 
 fn main() {
     let start = Instant::now();
@@ -32,12 +34,12 @@ fn main() {
         loaded_variable: None,
         condition: (None, None, None),
         variables: Vec::new(),
-        variable_value: Vec::new(),
+        variable_value: HashMap::new(),
     };
 
     let mut skip = false;
     let mut index = 0;
-    let mut end_point = 0;
+    let mut endPoint = 0;
     let mut blocks: VecDeque<usize> = VecDeque::new();
     loop {
         if index >= queue.len() {
@@ -47,21 +49,15 @@ fn main() {
         let mut statement: Statement = queue.get(index).into();
 
         if !skip {
-            if statement.identifier == "block" {
-                if !(statement.value == "NONE"){
-                    blocks.push_back(index + 1);
-                    end_point += 1;
-                }
+            if statement.identifier == "block" && statement.value == "NONE" {
+                blocks.push_back(index + 1);
+                endPoint += 1;
                 index += 1;
                 continue;
-            } else if statement.identifier == "skip" && statement.value == "NONE" {
-                blocks.push_back(index);
-                end_point += 1;
             } else if statement.identifier == "jump" && statement.value == "NONE" {
                 index = *blocks.back().unwrap();
                 continue;
             } else if statement.identifier == "end" {
-                execute(&mut state, statement);
                 index += 1;
                 continue;
             }
@@ -70,11 +66,10 @@ fn main() {
             index += 1;
         } else {
             if statement.identifier == "end" {
-                if end_point == 1 {
-                    execute(&mut state, statement);
+                if endPoint == 1 {
                     skip = true;
                 }
-                end_point -= 1;
+                endPoint -= 1;
             }
             index += 1;
             continue;
@@ -83,7 +78,7 @@ fn main() {
 
     let elapsed = start.elapsed();
 
-    println!("Run time: {}", elapsed.as_millis());
+    println!("Run time: {}ms", elapsed.as_millis());
 
     print_variables(state);
 }
