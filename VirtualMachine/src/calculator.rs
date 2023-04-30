@@ -4,9 +4,9 @@ pub fn calculate(operation: &String, x: f64, y: f64) -> f64 {
         "-" => sub(x, y),
         "*" => mul(x, y),
         "/" => div(x, y),
+        "%" => rem(x, y),
         "^" => pow(x, y),
         "#" => x,
-        "%" => rem(x, y),
         _ => panic!("ERROR | Unexpected operator")
     }
 }
@@ -27,6 +27,10 @@ fn div(x: f64, y: f64) -> f64 {
     x / y
 }
 
+fn rem(x: f64, y: f64) -> f64 {
+    x % y
+}
+
 fn pow(x: f64, y: f64) -> f64 {
     let mut result = x;
     let mut index = 1;
@@ -36,9 +40,4 @@ fn pow(x: f64, y: f64) -> f64 {
         index += 1;
     }
     result
-}
-
-// added '%' operator functionality
-fn rem(x: f64, y: f64) -> f64 {
-    x % y
 }

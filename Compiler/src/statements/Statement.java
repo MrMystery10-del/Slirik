@@ -12,6 +12,14 @@ public abstract class Statement {
         this.VALUE = VALUE;
     }
 
+    public String getSTATEMENT() {
+        return STATEMENT;
+    }
+
+    public String getVALUE() {
+        return VALUE;
+    }
+
     /**
      * Generates a bytecode statement
      */
