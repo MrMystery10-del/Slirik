@@ -10,4 +10,8 @@ public class End extends Statement {
     public End() {
         super(STATEMENT, "");
     }
+
+    public End(String VALUE) {
+        super(STATEMENT, VALUE);
+    }
 }

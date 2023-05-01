@@ -1,5 +1,8 @@
-num = 1;
+num1 = 10;
+val = 1;
 
-while num < 10 {
-    num + 1;
+if num1 < 5 {
+    val = 5;
+} else {
+    val = 10;
 }

@@ -1,5 +1,6 @@
 package core;
 
+import keywords.Else;
 import keywords.If;
 import keywords.While;
 import statements.*;
@@ -101,6 +102,9 @@ public class Trees {
                 statements.addAll(new While(headTokens).getKeywordBody());
                 statements.addAll(bodyTree(true, tokens));
             }
+        } else if (keyword.equals("else")) {
+            statements.addAll(new Else().getKeywordBody());
+            statements.addAll(bodyTree(false, tokens));
         }
 
         return statements;

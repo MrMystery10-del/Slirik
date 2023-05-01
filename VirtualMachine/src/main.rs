@@ -57,6 +57,10 @@ fn main() {
             } else if statement.identifier == "jump" && statement.value == "NONE" {
                 index = *blocks.back().unwrap();
                 continue;
+            } else if statement.identifier == "end" && statement.value == "next" {
+                index += 1;
+                skip = true;
+                continue;
             } else if statement.identifier == "end" {
                 index += 1;
                 continue;
@@ -66,10 +70,10 @@ fn main() {
             index += 1;
         } else {
             if statement.identifier == "end" {
-                if endPoint == 1 {
-                    skip = true;
-                }
                 endPoint -= 1;
+                if endPoint == 0 {
+                    skip = false;
+                }
             }
             index += 1;
             continue;
