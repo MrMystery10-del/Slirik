@@ -3,7 +3,16 @@ use crate::executor::State;
 
 pub fn check_condition(state: &mut State) -> bool {
     let var1 = state.condition.0.as_ref().unwrap();
+
+    if var1 == "true" {
+        return true;
+    }
+
     let var2 = state.condition.2.as_ref().unwrap();
+
+    if var2 == "true" {
+        return true;
+    }
 
     let num1;
     if var1.chars().next().unwrap().is_numeric() {

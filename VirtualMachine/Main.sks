@@ -1,9 +1,11 @@
 dir global
 type int
 op +
+block NONE
+con true
+skip NONE
 var val
 load val
 set 0
-add 5
-op #
-add 3125
+add 10
+end 
