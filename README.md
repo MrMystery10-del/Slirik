@@ -28,7 +28,7 @@ function main(args | String[]) {
 function pow(x, y | int) &int {
   result = x;
   for ..y {
-    result *= x;
+    result * x;
   }
   return result;
 }
@@ -44,7 +44,7 @@ function main(args | String[]) {
   pow() &int {
     result = x;
     for ..y {
-      result *= x;
+      result * x;
     }
     return result;
   }
