@@ -9,7 +9,11 @@ import java.util.Set;
 
 public class Validator {
 
-    private Queue<Statement> validated = new LinkedList<>();
+    private Queue<Statement> validated = new LinkedList<>(){
+       @Override
+        public boolean offer(Statement e) { return !this.contains(e) && super.add(e);}
+    };
+
     private Queue<Statement> nonValidated;
 
     private Set<String> variables = new HashSet<>();
