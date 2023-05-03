@@ -6,7 +6,7 @@ pub fn calculate(operation: &String, x: f64, y: f64) -> f64 {
         "/" => div(x, y),
         "%" => rem(x, y),
         "^" => pow(x, y),
-        "#" => x,
+        "#" => root(x, y),
         _ => panic!("ERROR | Unexpected operator")
     }
 }
@@ -32,12 +32,9 @@ fn rem(x: f64, y: f64) -> f64 {
 }
 
 fn pow(x: f64, y: f64) -> f64 {
-    let mut result = x;
-    let mut index = 1;
+    return x.powf(y);
+}
 
-    while index < y as i64 {
-        result *= x;
-        index += 1;
-    }
-    result
+fn root(x: f64, y: f64) -> f64 {
+    return y.powf(1.0 / x);
 }

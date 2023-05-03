@@ -1,25 +1,9 @@
 dir global
 type int
 op +
-var num1
-load num1
-set 0
-add 10
 var val
 load val
 set 0
-add 1
-block NONE
-con num1
-cop <
-con 5
-skip NONE
-load val
-set 0
 add 5
-end next
-block NONE
-load val
-set 0
-add 10
-end 
+op #
+add 3125
