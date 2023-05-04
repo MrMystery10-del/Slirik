@@ -7,13 +7,16 @@ use crate::Statement;
 
 pub struct State {
     pub class: String,
+    pub condition: (Option<String>, Option<String>, Option<String>),
     pub directory: String,
+
+    // function name, parameters, return_value
+    pub functions: Vec<(String, Option<Vec<Storage>>, Option<Storage>)>,
+    pub loaded_variable: Option<String>,
     pub operation: String,
     pub variable_type: Option<String>,
-    pub loaded_variable: Option<String>,
-    pub condition: (Option<String>, Option<String>, Option<String>),
-    pub variables: Vec<(String, String, String)>,
     pub variable_value: HashMap<String, Storage>,
+    pub variables: Vec<(String, String, String)>,
 }
 
 pub struct Storage {
@@ -25,6 +28,7 @@ pub fn execute(mut state: &mut State, statement: Statement) -> bool {
     let mut doSkip = false;
     match statement.identifier.as_str() {
         "add" => add(state, statement),
+        "call" => call(state, statement),
         "con" => con(state, statement),
         "cop" => cop(state, statement),
         "dir" => dir(state, statement),
@@ -32,6 +36,9 @@ pub fn execute(mut state: &mut State, statement: Statement) -> bool {
         "get" => get(state, statement),
         "load" => load(state, statement),
         "op" => op(state, statement),
+        "param" => param(state, statement),
+        "return" => return_(state, statement),
+        "reva" => reva(state, statement),
         "set" => set(state, statement),
         "skip" => doSkip = skip(state),
         "type" => setType(state, statement),
@@ -51,6 +58,8 @@ fn add(state: &mut State, statement: Statement) {
         None => panic!("No variable type declared")
     }
 }
+
+fn call(state: &mut State, statement: Statement){}
 
 fn con(state: &mut State, statement: Statement) {
     match (state.condition.0.is_none(), state.condition.2.is_none()) {
@@ -103,6 +112,12 @@ fn load(state: &mut State, statement: Statement) {
 fn op(state: &mut State, statement: Statement) {
     state.operation = statement.value
 }
+
+fn param(state: &mut State, statement: Statement){}
+
+fn return_(state: &mut State, statement: Statement){}
+
+fn reva(state: &mut State, statement: Statement){}
 
 fn set(state: &mut State, statement: Statement) {
     match &state.loaded_variable {

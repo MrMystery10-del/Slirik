@@ -28,13 +28,14 @@ fn main() {
 
     let mut state = State {
         class: String::new(),
+        condition: (None, None, None),
         directory: String::new(),
+        functions: Vec::new(),
+        loaded_variable: None,
         operation: String::new(),
         variable_type: None,
-        loaded_variable: None,
-        condition: (None, None, None),
-        variables: Vec::new(),
         variable_value: HashMap::new(),
+        variables: Vec::new(),
     };
 
     let mut skip = false;
