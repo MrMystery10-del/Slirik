@@ -18,14 +18,14 @@ Once you have installed Slirik, you can start writing code using your favorite t
 ## Examples
 Here is an example of x to the power of y function written in Slirik:
 ```java
-function main(args | String[]) {
+main(args | String[]) {
   int x = 5;
   int y = 3;
   
   println!("The result of {} to the power of {} is: {}!", x, y, pow(x, y));
 }
 
-function pow(x, y | int) &int {
+pow(x, y | int) &int {
   result = x;
   for ..y {
     result * x;
@@ -35,7 +35,7 @@ function pow(x, y | int) &int {
 ```
 You can also use methods inside of your functions, here is the same example but with using methods:
 ```java
-function main(args | String[]) {
+main(args | String[]) {
   int x = 5;
   int y = 3;
   
