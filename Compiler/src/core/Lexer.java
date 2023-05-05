@@ -6,7 +6,7 @@ import java.util.List;
 public class Lexer {
 
     public enum TokenType {
-        TYPE, IDENTIFIER, EQUALS, NUMBER, BINARY_OPERATOR, OPEN_PAREN, CLOSE_PAREN, END,
+        TYPE, IDENTIFIER, EQUALS, NUMBER, BINARY_OPERATOR, OPEN_PAREN, CLOSE_PAREN, OPEN_HEAD, CLOSE_HEAD, END,
         KEYWORD, FUNCTION, CONDITION
     }
 
@@ -56,6 +56,16 @@ public class Lexer {
             }
             if (c == '}') {
                 tokenList.add(new Token(String.valueOf(c), TokenType.CLOSE_PAREN));
+                i++;
+                continue;
+            }
+            if (c == '(') {
+                tokenList.add(new Token(String.valueOf(c), TokenType.OPEN_HEAD));
+                i++;
+                continue;
+            }
+            if (c == ')') {
+                tokenList.add(new Token(String.valueOf(c), TokenType.CLOSE_HEAD));
                 i++;
                 continue;
             }

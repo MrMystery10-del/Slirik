@@ -45,6 +45,8 @@ public class Parser {
             case BINARY_OPERATOR -> whenBinaryOperation();
             case OPEN_PAREN -> whenOpenParen();
             case CLOSE_PAREN -> whenCloseParen();
+            case OPEN_HEAD -> whenOpenHead();
+            case CLOSE_HEAD -> whenCloseHead();
             case END -> whenEnd();
             case KEYWORD -> whenKeyWord();
         }
@@ -87,6 +89,14 @@ public class Parser {
     }
 
     private void whenCloseParen() {
+        throw new IllegalArgumentException("Illegal start of statement");
+    }
+
+    private void whenOpenHead() {
+        throw new IllegalArgumentException("Illegal start of statement");
+    }
+
+    private void whenCloseHead() {
         throw new IllegalArgumentException("Illegal start of statement");
     }
 
