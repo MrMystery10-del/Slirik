@@ -38,7 +38,8 @@ pub fn check_condition(state: &mut State) -> bool {
         }
     }
 
-    match state.condition.1.as_ref().unwrap().as_str() {
+    let operator = state.condition.1.as_ref().unwrap().as_str();
+    match operator {
         "<" => {
             clear_condition(state);
             num1 < num2
@@ -47,11 +48,19 @@ pub fn check_condition(state: &mut State) -> bool {
             clear_condition(state);
             num1 > num2
         }
+        "<=" => {
+            clear_condition(state);
+            num1 <= num2
+        }
+        ">=" => {
+            clear_condition(state);
+            num1 <= num2
+        }
         "==" => {
             clear_condition(state);
             num1 == num2
         }
-        _ => panic!("Invalid operator")
+        _ => panic!("Invalid operator {}", operator)
     }
 }
 

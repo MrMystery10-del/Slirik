@@ -1,11 +1,16 @@
 dir global
 type int
 op +
-block NONE
-con true
-skip NONE
-var val
-load val
+var num
+load num
 set 0
-add 10
+add 1
+block NONE
+con num
+cop <=
+con 10
+skip NONE
+load num
+add 1
+jump NONE
 end 

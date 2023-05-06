@@ -45,8 +45,14 @@ public class Lexer {
                 continue;
             }
             if (c == '=') {
-                tokenList.add(new Token(String.valueOf(c), TokenType.EQUALS));
-                i++;
+                char next = s.charAt(i + 1);
+                if (next == '=') {
+                    tokenList.add(new Token("" + c + next, TokenType.CONDITION));
+                    i += 2;
+                } else {
+                    tokenList.add(new Token(String.valueOf(c), TokenType.EQUALS));
+                    i++;
+                }
                 continue;
             }
             if (c == '{') {
@@ -74,9 +80,15 @@ public class Lexer {
                 i++;
                 continue;
             }
-            if (c == '<' || c == '>'){
-                tokenList.add(new Token(String.valueOf(c), TokenType.CONDITION));
-                i++;
+            if (c == '<' || c == '>') {
+                char next = s.charAt(i + 1);
+                if (next == '=') {
+                    tokenList.add(new Token("" + c + next, TokenType.CONDITION));
+                    i += 2;
+                } else {
+                    tokenList.add(new Token(String.valueOf(c), TokenType.CONDITION));
+                    i++;
+                }
                 continue;
             }
             if (c == ';') {
