@@ -8,7 +8,7 @@ public class End extends Statement {
     private static final String STATEMENT = "end";
 
     public End() {
-        super(STATEMENT, "");
+        super(STATEMENT, "NONE");
     }
 
     public End(String VALUE) {

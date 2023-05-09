@@ -1,74 +1,59 @@
-use std::collections::HashMap;
-use std::string::ToString;
+use std::collections::{HashMap, VecDeque};
 
-use crate::calculator::calculate;
-use crate::executor_helper::{add_value, check_condition, clear_condition, print_warning};
-use crate::Statement;
+use crate::essentials::{State, Statement};
+use crate::executor_helper::{add_value, add_value_no_ref, check_condition, clear_condition, insert_variable, search_storage};
 
-pub struct State {
-    pub class: String,
-    pub condition: (Option<String>, Option<String>, Option<String>),
-    pub directory: String,
+pub fn execute<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) -> bool {
+    let mut do_skip = false;
 
-    // function name, parameters, return_value
-    pub functions: Vec<(String, Option<Vec<Storage>>, Option<Storage>)>,
-    pub loaded_variable: Option<String>,
-    pub operation: String,
-    pub variable_type: Option<String>,
-    pub variable_value: HashMap<String, Storage>,
-    pub variables: Vec<(String, String, String)>,
-}
-
-pub struct Storage {
-    pub value_type: String,
-    pub value: String,
-}
-
-// Execute a function based on provided statement
-pub fn execute(mut state: &mut State, statement: Statement) -> bool {
-    let mut doSkip = false;
-    match statement.identifier.as_str() {
-        "add" => add(state, statement),
-        "call" => call(state, statement),
-        "con" => con(state, statement),
-        "cop" => cop(state, statement),
-        "dir" => dir(state, statement),
-        "end" => end(state),
-        "get" => get(state, statement),
-        "load" => load(state, statement),
-        "op" => op(state, statement),
-        "param" => param(state, statement),
-        "return" => return_(state, statement),
-        "reva" => reva(state, statement),
-        "set" => set(state, statement),
-        "skip" => doSkip = skip(state),
-        "type" => setType(state, statement),
-        "var" => var(state, statement),
-        _ => print_warning(format!("Undefined statement: {}", statement.identifier).as_str()),
+    match statement.identifier {
+        0x01 => add(state, statement),
+        0x02 => block(state, statement),
+        0x03 => call(state, statement),
+        0x04 => con(state, statement),
+        0x05 => cop(state, statement),
+        0x06 => dir(state, statement),
+        0x07 => end(state, statement),
+        0x08 => get(state, statement),
+        0x09 => jump(state, statement),
+        0xA => load(state, statement),
+        0xB => op(state, statement),
+        0xC => param(state, statement),
+        0xD => return_(state, statement),
+        0xE => reva(state, statement),
+        0xF => set(state, statement),
+        0x10 => do_skip = skip(state, statement),
+        0x11 => type_(state, statement),
+        0x12 => var(state, statement),
+        _ => {}
     }
-    doSkip
+    do_skip
 }
 
-// Add a value to loaded value with current loaded operator
-fn add(state: &mut State, statement: Statement) {
-    match &state.variable_type {
-        Some(variable_type) =>
-            match variable_type.as_str() {
-            "int" | "float" => add_value(state, statement.value),
-            _ => panic!("The statement 'add' is not allowed for {}", variable_type)
-        }
-        None => panic!("No variable type declared")
+fn add<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    match state.loaded_variable {
+        Some(loaded_variable) =>
+            match state.variable_type {
+                Some(variable_type) => {
+                    match variable_type.as_str() {
+                        "int" | "float" => add_value(state, &statement.value),
+                        _ => panic!("The statement 'add' is not allowed for {}", variable_type)
+                    }
+                }
+                None => panic!("No variable type declared")
+            }
+        None => panic!("No loaded variable")
     }
 }
 
-// Calls a function and returns a value from that function
-fn call(state: &mut State, statement: Statement){}
+fn block<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {}
 
-// Sets a new condition point, that can be a number or boolean value
-fn con(state: &mut State, statement: Statement) {
+fn call<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {}
+
+fn con<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
     match (state.condition.0.is_none(), state.condition.2.is_none()) {
-        (true, _) => state.condition.0 = Some(statement.value),
-        (_, true) => state.condition.2 = Some(statement.value),
+        (true, _) => state.condition.0 = Some(&statement.value),
+        (_, true) => state.condition.2 = Some(&statement.value),
         _ => {
             check_condition(state);
             con(state, statement);
@@ -76,109 +61,86 @@ fn con(state: &mut State, statement: Statement) {
     }
 }
 
-// Sets the condition operator, that can be: '<', '>' or '=='
-fn cop(state: &mut State, statement: Statement) {
+fn cop<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
     if state.condition.1.is_none() {
-        state.condition.1 = Some(statement.value);
+        state.condition.1 = Some(&statement.value);
     } else {
         panic!("Unexpected condition declaration");
     }
 }
 
-// Sets the current directory (unused before function implementation)
-fn dir(state: &mut State, statement: Statement) {
-    state.directory = statement.value
+fn dir<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    if statement.value == "local" {
+        state.local_variable.push_back(HashMap::new());
+    } else if statement.value == "global" {
+        state.local_variable = VecDeque::new();
+    }
 }
 
-// Clears the current condition after out of scout
-fn end(state: &mut State) {
-    clear_condition(state)
+fn end<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    clear_condition(state);
 }
 
-// Gets a value from variable
-fn get(state: &mut State, statement: Statement) {
-    match &state.loaded_variable {
+fn get<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    match state.loaded_variable {
         Some(..) => {
-            if let Some(storage) = state.variable_value.get(&statement.value) {
-                add_value(state, storage.value.clone());
+            if let Some(storage) = search_storage(state, &statement.value) {
+                let value = storage.value.clone();
+                add_value_no_ref(state, value);
             }
         }
         None => panic!("No variable is loaded to get: {} {}", statement.identifier, statement.value)
     }
 }
 
-// Loads a variable
-fn load(state: &mut State, statement: Statement) {
-    if state.variables.contains(&(state.class.clone(), state.directory.clone(), statement.value.clone())) {
-        state.loaded_variable = Some(statement.value.clone());
-    } else if state.directory == "local" && state.variables.contains(&(state.class.clone(), "global".to_string(), statement.value.clone())) {
-        state.loaded_variable = Some(statement.value.clone());
-    } else {
-        panic!("Undefined variable name: {}", statement.value);
+fn jump<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {}
+
+fn load<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    match search_storage(state, &statement.value) {
+        Some(..) => state.loaded_variable = Some(&statement.value),
+        None => panic!("Undefined variable: {}", statement.value)
     }
 }
 
-// Loads a new operant which will be used on next value adding
-fn op(state: &mut State, statement: Statement) {
-    state.operation = statement.value
+fn op<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    state.operation = Some(&statement.value);
 }
 
-// Adds a new parameter for function which will be required on function call
-fn param(state: &mut State, statement: Statement){}
+fn param<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {}
 
-// Returns a value to last caller
-fn return_(state: &mut State, statement: Statement){}
+fn return_<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {}
 
-// Sets the return type of a function
-fn reva(state: &mut State, statement: Statement){}
+fn reva<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {}
 
-// Sets a new value to loaded value
-fn set(state: &mut State, statement: Statement) {
-    match &state.loaded_variable {
+fn set<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    match state.loaded_variable {
         Some(loaded_variable) => {
-            if let Some(storage) = state.variable_value.get_mut(loaded_variable) {
-                storage.value = statement.value;
+            if let Some(storage) = search_storage(state, loaded_variable) {
+                storage.value = statement.value.clone();
             } else {
-                panic!("No value found for {}", loaded_variable);
+                panic!("No value found")
             }
         }
         None => panic!("Cannot find any loaded variable")
     }
 }
 
-// Check if condition is true or false, based on that returns a boolean value to decide if should
-// skip until next end statement
-fn skip(state: &mut State) -> bool {
+fn skip<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) -> bool {
     !check_condition(state)
 }
 
-// Sets the type of variables created after
-fn setType(state: &mut State, statement: Statement) {
-    state.variable_type = Some(statement.value);
+fn type_<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    state.variable_type = Some(&statement.value);
 }
 
-// Creates a new variable
-fn var(state: &mut State, statement: Statement) {
-    let value = &statement.value;
-    if !state.variables.contains(&(state.class.clone(), state.directory.clone(), value.clone())) {
-        state.variables.push((state.class.clone(), state.directory.clone(), value.clone()));
-        if let Some(variable_type) = &state.variable_type {
-            state.variable_value.insert(value.clone(), Storage {
-                value_type: variable_type.clone(),
-                value: String::new(),
-            });
-        }
-    } else if let Some(variable_type) = &state.variable_type {
-        if let Some(storage) = state.variable_value.get_mut(value) {
-            storage.value_type = variable_type.clone();
+fn var<'a, 'b>(state: &'b mut State<'a>, statement: &'a Statement) {
+    let variable_type = state.variable_type.unwrap();
+
+    match search_storage(state, &statement.value) {
+        Some(storage) => {
+            storage.value_type = variable_type;
             storage.value = String::new();
         }
-    }
-}
-
-// Prints all variables with their values (just for testing)
-pub fn print_variables(state: State) {
-    for val in state.variable_value {
-        println!("{} {} {}", val.1.value_type, val.0, val.1.value);
+        None => insert_variable(state, &statement.value),
     }
 }
