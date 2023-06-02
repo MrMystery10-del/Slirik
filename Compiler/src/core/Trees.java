@@ -11,10 +11,16 @@ import java.util.List;
 
 public class Trees {
 
+    // Constructor for type tree
+    // Takes paramenter tokens the iterrator over the tokens
+    // Returns a list of statements representing the type Tree
     protected static List<Statement> typeTree(Iterator<Lexer.Token> tokens) {
         return typeTree(tokens, tokens.next());
     }
 
+    // Contrustor of a type Tree that takes a stream of tokens, Starting from the given token (currentToken)
+    // Takes paramenter tokens the iterrator over the tokens, as well as the current token to start the contruction Tree from
+    // Returns a list of statements representing the type Tree
     protected static List<Statement> typeTree(Iterator<Lexer.Token> tokens, Lexer.Token currentToken) {
         List<Statement> statements = new LinkedList<>();
 
@@ -31,10 +37,17 @@ public class Trees {
         return statements;
     }
 
+    // Constructor for identifier tree from a stream of tokens
+    // Takes paramenter tokens the iterrator over the tokens
+    // Returns a list of statements representing the indentifier Tree
     protected static List<Statement> identifierTree(Iterator<Lexer.Token> tokens) {
         return identifierTree(tokens, tokens.next());
     }
 
+
+     // Constructor for identifier tree from a stream of tokens, starting from a given token (currentToken)
+     // Takes paramenter tokens the iterrator over the tokens, as well as the current token to start the identifier Tree from
+    // Returns a list of statements representing the indentifier Tree
     protected static List<Statement> identifierTree(Iterator<Lexer.Token> tokens, Lexer.Token currentToken) {
         List<Statement> statements = new LinkedList<>();
 
@@ -54,10 +67,16 @@ public class Trees {
         return statements;
     }
 
+    // Constructor for equals tree from a stream of tokens
+    // Takes paramenter tokens the iterrator over the tokens
+    // Returns a list of statements representing the equals Tree
     private static List<Statement> equalsTree(Iterator<Lexer.Token> tokens) {
         return equalsTree(tokens, true);
     }
 
+    // Constructor for equals tree from a stream of tokens, optionally starting with a new value
+    // Takes paramenter tokens the iterrator over the tokens, as well as thenew value wheather to start with a new value or not
+    // Returns a list of statements that represents an equals tree
     private static List<Statement> equalsTree(Iterator<Lexer.Token> tokens, boolean newValue) {
         List<Statement> statements = new LinkedList<>();
 
@@ -79,6 +98,9 @@ public class Trees {
         return statements;
     }
 
+    // Creates a keyword tree from a stream of tokens
+    // Takes a parameter of tokens the iterator over the tokens
+    // Returns a list of statements reprenting the keyword tree
     protected static List<Statement> keywordTree(Iterator<Lexer.Token> tokens) {
         List<Statement> statements = new LinkedList<>();
 
@@ -86,6 +108,7 @@ public class Trees {
         String keyword = token.value();
 
         token = tokens.next();
+        // for if and while statements
         if (keyword.equals("if") || keyword.equals("while")) {
             List<Lexer.Token> headTokens = new LinkedList<>();
 
@@ -98,10 +121,12 @@ public class Trees {
             if (keyword.equals("if")) {
                 statements.addAll(new If(headTokens).getKeywordBody());
                 statements.addAll(bodyTree(false, tokens));
+            // For while statements
             } else {
                 statements.addAll(new While(headTokens).getKeywordBody());
                 statements.addAll(bodyTree(true, tokens));
             }
+            // For else statements
         } else if (keyword.equals("else")) {
             statements.addAll(new Else().getKeywordBody());
             statements.addAll(bodyTree(false, tokens));
@@ -110,6 +135,9 @@ public class Trees {
         return statements;
     }
 
+    // Creates a bopdy tree from a stream of tokens
+    // Takes a parameter of jump wheather a jump statement is required tokens the iterrator over the tokens
+    // Returns a list of statements representing the tree
     private static List<Statement> bodyTree(boolean jump, Iterator<Lexer.Token> tokens) {
         List<Statement> statements = new LinkedList<>();
         Lexer.Token token = tokens.next();
@@ -135,6 +163,9 @@ public class Trees {
         return statements;
     }
 
+    // Identifier for type of token ofr the correct tree construction
+    // Takes the parememter tokens the iterrator over the tokens
+    // Returns a list of statements repsenting the identified tree
     private static List<Statement> identifyToken(Iterator<Lexer.Token> tokens) {
         List<Statement> statements = new LinkedList<>();
 
