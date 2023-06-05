@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.Set;
 
 public class Validator {
-    // Queue to sotre validated statements
+    // Queue to store validated statements
     private Queue<Statement> validated = new LinkedList<>();
     //Queue to store non-validated statements
     private Queue<Statement> nonValidated;
@@ -20,8 +20,7 @@ public class Validator {
     private String type = "";
     private String operator = "";
 
-    // Constructor for validator object eith a queue of statements that need ot be validated
-    // Paramenter is the queue of statements to be validated
+    // Constructor for validator object with a queue of statements that need ot be validated
     protected Validator(Queue<Statement> statements) {
         this.nonValidated = statements;
     }
@@ -30,7 +29,7 @@ public class Validator {
     protected Queue<Statement> getValidatedStatements() {
         while (!nonValidated.isEmpty()) {
             Statement statement = nonValidated.poll();
-
+             // Checks to see the statement type
             switch (statement.getSTATEMENT()) {
                 case "dir" -> validateDir(statement, statement.getVALUE());
                 case "op" -> validateOp(statement, statement.getVALUE());
