@@ -3,3 +3,21 @@ num = 1;
 while num <= 100 {
     num + 1;
 }
+int x = 13;
+for(int i = 0, i <= 13, i++)
+{
+   System.out.println(("i = ", i)) 
+}
+if ((x % 2) != 0)
+    {
+        x = x + 5;
+        if ((x % 2) != 0)
+        {
+            x = x-14
+        }
+    }
+else:
+{
+    x = 0
+}
+System.out.println("These were the some ", x, num)
