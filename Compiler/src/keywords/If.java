@@ -21,22 +21,25 @@ public class If implements Keyword {
             token = iterator.next();
             if (token.tokenType() == Lexer.TokenType.NUMBER || token.tokenType() == Lexer.TokenType.IDENTIFIER) {
                 body.add(new Condition(token.value()));
-            } else throw new IllegalArgumentException();
-
+            } else 
+            {
+                throw new IllegalArgumentException("Invalid Token Type");
+            }
             if (iterator.hasNext())
+            {
                 token = iterator.next();
-            else break;
-
-            if (token.tokenType() == Lexer.TokenType.CONDITION) {
-                body.add(new ConditionOperation(token.value()));
-            } else {
-                //TODO implement multiple conditions
+                if (token.tokenType() == Lexer.TokenType.CONDITION) {
+                    body.add(new ConditionOperation(token.value()));
+                } else {
+                    throw new IllegalArgumentException("Expected condition token");
+                    }
+            }
+            else {
+                throw new IllegalArgumentException("Missing condition token");
             }
         }
-
         body.add(new Skip());
     }
-
     @Override
     public List<Statement> getKeywordBody() {
         return body;
