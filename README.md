@@ -1,4 +1,4 @@
-# Slirik
+# Slirik (Developement paused)
 Slirik is a modern programming language designed to offer the best of both worlds: the simplicity and ease of use of a scripting language, as well as the power hardware closer language. Slirik has a unique mix of a compiler and interpreter, making it flexible and efficient.
 
 # IMPORTANT
